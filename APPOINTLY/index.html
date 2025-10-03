@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>APPOINTLY</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="IMAGES/APPOINTLY_logo.png" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>.error{color:red;}</style>
+</head>
+<body>
+  <div class="container mt-3">
+    <div class="row justify-content-center">
+      <div class="col-4" style="background-color:#9c76c5">
+        <form name="frm" onsubmit="return checkData(event)">
+          <fieldset class="border p-3">
+            <legend class="float-none w-auto px-2">APPOINTMENT</legend>
+
+            <!-- Name -->
+            <div class="mb-3">
+              <label for="name" class="form-label">Name:</label>
+              <input type="text" class="form-control" id="name" name="name" />
+              <span id="nameErr" class="error"></span>
+            </div>
+
+            <!-- Email -->
+            <div class="mb-3">
+              <label for="email" class="form-label">Email:</label>
+              <input type="email" class="form-control" id="email" name="email" />
+              <span id="emailErr" class="error"></span>
+            </div>
+
+            <!-- Mobile -->
+            <div class="mb-3">
+              <label for="mobile" class="form-label">Mobile No:</label>
+              <input type="number" class="form-control" id="mobile" name="mobile" />
+              <span id="mobErr" class="error"></span>
+            </div>
+
+            <!-- Date -->
+            <div class="mb-3">
+              <label for="date" class="form-label">Date Of Appointment:</label>
+              <input type="date" class="form-control" id="date" name="date" />
+              <span id="dateErr" class="error"></span>
+            </div>
+
+            <!-- Time -->
+            <div class="mb-3">
+              <label for="time" class="form-label">Time Of Appointment:</label>
+              <input type="time" class="form-control" id="time" name="time" />
+              <span id="timeErr" class="error"></span>
+            </div>
+
+            <!-- Disease -->
+            <div class="mb-3">
+              <label for="disease" class="form-label">Disease Info:</label>
+              <textarea class="form-control" id="disease" name="disease" rows="3"></textarea>
+              <span id="diseaseErr" class="error"></span>
+            </div>
+
+            <!-- Buttons -->
+            <div class="mb-2">
+              <button type="submit" class="btn btn-primary">Submit</button>
+              <button type="reset" class="btn btn-warning">Reset</button>
+            </div>
+          </fieldset>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="JAVASCRIPT/validation.js"></script>
+  <script src="JAVASCRIPT/appointmentHandler.js"></script>
+</body>
+</html>
