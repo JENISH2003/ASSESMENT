@@ -1,0 +1,12 @@
+{
+  "books": [
+    {
+      "id": "d0ed",
+      "title": "dad",
+      "author": "jkj",
+      "isbn": "12345678912345",
+      "genre": "dsd",
+      "status": "Borrowed"
+    }
+  ]
+}

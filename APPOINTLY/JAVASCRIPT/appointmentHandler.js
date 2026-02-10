@@ -7,22 +7,28 @@ const saveData = () => {
   let time = document.frm.time.value;
   let disease = document.frm.disease.value;
 
-  let allData =JSON.parse(localStorage.getItem("patientInfo")) ||  [];
+  let allData = JSON.parse(localStorage.getItem("patientInfo")) || [];
   let len = allData.length > 0 ? allData[allData.length - 1].id + 1 : 1;
-  let obj = { id:len, name: nm, email:email, mobile: mob, date :date, time:time, disease:disease };
+  let obj = {
+    id: len,
+    name: nm,
+    email: email,
+    mobile: mob,
+    date: date,
+    time: time,
+    disease: disease,
+  };
 
   allData.push(obj);
   localStorage.setItem("patientInfo", JSON.stringify(allData));
-  
-  document.frm.reset()
-  
-};
 
+  document.frm.reset();
+};
 
 // Display data
 const display = () => {
   let dt = localStorage.getItem("patientInfo");
-  if(!dt) return;
+  if (!dt) return;
 
   let res = JSON.parse(dt);
   let tr = "";
@@ -45,8 +51,11 @@ const display = () => {
 
 // Delete one record
 const delData = (id) => {
+  let confirmation =  confirm("Are you sure you want to delete this record?")
+if(confirmation){
   let dt = JSON.parse(localStorage.getItem("patientInfo")) || [];
   let newDt = dt.filter((item) => item.id !== id);
   localStorage.setItem("patientInfo", JSON.stringify(newDt));
   display();
+}
 };
