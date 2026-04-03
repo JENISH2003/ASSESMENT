@@ -4,6 +4,9 @@ import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
 import { Input } from "../components/ui/Input";
 import { Button } from "../components/ui/Button";
+import ErrorMessage from "../components/ui/ErrorMessage";
+import Loader from "../components/ui/Loader";
+import PageHeader from "../components/ui/PageHeader";
 import AIAssistant from "../components/AIAssistant";
 import { PenTool, Tag, Image as ImageIcon, Send } from "lucide-react";
 
@@ -87,21 +90,13 @@ export default function CreatePost() {
   return (
     <div className="max-w-3xl mx-auto py-8 animate-fade-in relative z-10">
       <div className="glass-card p-8 md:p-12 rounded-[2rem]">
-        <div className="flex items-center space-x-3 mb-8 pb-6 border-b border-border/50">
-          <div className="p-3 bg-primary/10 text-primary rounded-xl">
-            <PenTool className="w-6 h-6" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-heading font-bold">Create New Post</h1>
-            <p className="text-muted-foreground mt-1 text-sm font-medium">Share your thoughts with the world</p>
-          </div>
-        </div>
+        <PageHeader 
+          title="Create New Post" 
+          subtitle="Share your thoughts with the world" 
+          icon={PenTool} 
+        />
 
-        {error && (
-          <div className="mb-6 p-4 rounded-xl bg-destructive/10 text-destructive text-sm font-medium border border-destructive/20 animate-fade-in">
-            {error}
-          </div>
-        )}
+        <ErrorMessage message={error} />
 
         <AIAssistant 
           title={title}
@@ -170,7 +165,7 @@ export default function CreatePost() {
             </Button>
             <Button type="submit" className="min-w-[120px]" disabled={isLoading}>
               {isLoading ? (
-                <div className="custom-loader w-5 h-5" />
+                <Loader size="sm" />
               ) : (
                 <>Publish <Send className="w-4 h-4 ml-2" /></>
               )}

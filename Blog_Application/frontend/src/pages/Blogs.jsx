@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { X, Search, Menu, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import BlogCard from "../components/BlogCard";
+import Loader from "../components/ui/Loader";
 
 export default function Blogs() {
   const [posts, setPosts] = useState([]);
@@ -255,17 +256,12 @@ export default function Blogs() {
 
         {/* Content Section */}
         {loading ? (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="flex flex-col justify-center items-center py-32 space-y-6"
-          >
-            <div className="custom-loader w-10 h-10 text-primary drop-shadow-[0_0_15px_rgba(var(--primary),0.3)]" />
-            <p className="text-muted-foreground animate-pulse font-medium tracking-wide">
+          <div className="flex flex-col items-center justify-center py-32 space-y-4">
+            <Loader size="lg" className="text-primary drop-shadow-[0_0_15px_rgba(var(--primary),0.3)]" />
+            <p className="text-muted-foreground font-medium tracking-wide">
               Searching our archives...
             </p>
-          </motion.div>
+          </div>
         ) : error ? (
           <div className="text-center py-20 bg-destructive/5 rounded-3xl border border-destructive/20 text-destructive shadow-sm max-w-2xl mx-auto">
             <p className="font-semibold text-lg">{error}</p>

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import axiosInstance from "../services/axiosInstance";
 import { useAuth } from "../context/AuthContext";
+import Loader from "../components/ui/Loader";
 import { ArrowLeft, Calendar, User, Clock, Eye, Tag, Send } from "lucide-react";
 
 export default function PostDetail() {
@@ -66,10 +67,10 @@ export default function PostDetail() {
     }
   };
 
-  if (loading) {
+  if (loading || !post) {
     return (
-      <div className="flex justify-center items-center min-h-[60vh]">
-        <div className="custom-loader w-12 h-12 text-primary" />
+      <div className="flex justify-center py-20">
+        <Loader size="xl" className="text-primary" />
       </div>
     );
   }
@@ -157,7 +158,7 @@ export default function PostDetail() {
                 className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2.5 rounded-lg font-medium transition-colors disabled:opacity-50 flex items-center"
               >
                 {isSubmitting ? (
-                  <div className="custom-loader w-4 h-4 mr-2" />
+                  <Loader size="xs" className="mr-2" />
                 ) : (
                   <Send className="w-4 h-4 mr-2" />
                 )}

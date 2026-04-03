@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import { Rss, PenLine, ArrowRight } from "lucide-react";
+import { ArrowRight, Sparkles, Code, ExternalLink, Activity, BookOpen, Layers, Rss, PenLine } from "lucide-react";
 import BlogCard from "../components/BlogCard";
+import Loader from "../components/ui/Loader";
 
 export default function Home() {
   const [posts, setPosts] = useState([]);
@@ -65,8 +66,8 @@ export default function Home() {
         </section>
 
         {loading ? (
-          <div className="flex justify-center items-center py-32">
-            <div className="custom-loader w-8 h-8 text-muted-foreground" />
+          <div className="flex justify-center py-20">
+            <Loader size="md" className="text-muted-foreground" />
           </div>
         ) : error ? (
           <div className="p-6 bg-destructive/10 text-destructive rounded-xl text-center font-medium max-w-lg mx-auto border border-destructive/20">

@@ -3,6 +3,9 @@ import { useNavigate, Link } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { Input } from "../components/ui/Input";
 import { Button } from "../components/ui/Button";
+import ErrorMessage from "../components/ui/ErrorMessage";
+import Loader from "../components/ui/Loader";
+import AuthHeader from "../components/ui/AuthHeader";
 import { User, Mail, Lock, ArrowRight } from "lucide-react";
 
 export default function Register() {
@@ -51,20 +54,12 @@ export default function Register() {
           <div className="absolute bottom-0 right-0 w-32 h-32 bg-accent/20 blur-3xl rounded-full translate-x-1/2 translate-y-1/2" />
 
           <div className="relative z-10">
-            <div className="text-center mb-10">
-              <h2 className="text-3xl font-heading font-extrabold text-gradient mb-2">
-                Create Account
-              </h2>
-              <p className="text-muted-foreground font-medium">
-                Join our community of writers today
-              </p>
-            </div>
+            <AuthHeader 
+              title="Create Account" 
+              subtitle="Join our community of writers today" 
+            />
 
-            {error && (
-              <div className="mb-6 p-4 rounded-xl bg-destructive/10 text-destructive text-sm font-medium border border-destructive/20 animate-fade-in">
-                {error}
-              </div>
-            )}
+            <ErrorMessage message={error} />
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-4">
@@ -117,7 +112,7 @@ export default function Register() {
                 disabled={isLoading}
               >
                 {isLoading ? (
-                  <div className="custom-loader w-5 h-5" />
+                  <Loader size="sm" />
                 ) : (
                   <>
                     Sign Up <ArrowRight className="w-4 h-4 ml-2" />

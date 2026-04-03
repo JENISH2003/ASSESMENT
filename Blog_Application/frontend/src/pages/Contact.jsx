@@ -4,6 +4,7 @@ import axiosInstance from "../services/axiosInstance";
 import { motion } from "framer-motion";
 import { Input } from "../components/ui/Input";
 import { Button } from "../components/ui/Button";
+import Loader from "../components/ui/Loader";
 import { Mail, CheckCircle2, AlertCircle, User, MessageSquare, Send } from "lucide-react";export default function Contact() {
   const { user } = useAuth() || { user: null };
   const [formData, setFormData] = useState({
@@ -178,7 +179,7 @@ import { Mail, CheckCircle2, AlertCircle, User, MessageSquare, Send } from "luci
                 disabled={isLoading}
               >
                 {isLoading ? (
-                  <div className="custom-loader w-5 h-5" />
+                  <Loader size="sm" />
                 ) : (
                   <>
                     Send Message

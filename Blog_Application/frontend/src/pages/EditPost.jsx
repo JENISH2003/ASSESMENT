@@ -4,6 +4,9 @@ import { AuthContext } from "../context/AuthContext";
 import axiosInstance from "../services/axiosInstance";
 import { Input } from "../components/ui/Input";
 import { Button } from "../components/ui/Button";
+import ErrorMessage from "../components/ui/ErrorMessage";
+import Loader from "../components/ui/Loader";
+import PageHeader from "../components/ui/PageHeader";
 import AIAssistant from "../components/AIAssistant";
 import { PenTool, Tag, Image as ImageIcon, CheckCircle } from "lucide-react";
 
@@ -62,7 +65,7 @@ export default function EditPost() {
   if (isFetching) {
     return (
       <div className="flex justify-center py-20">
-        <div className="custom-loader w-12 h-12 text-primary" />
+        <Loader size="xl" className="text-primary" />
       </div>
     );
   }
@@ -119,21 +122,13 @@ export default function EditPost() {
   return (
     <div className="max-w-3xl mx-auto py-8 animate-fade-in relative z-10">
       <div className="glass-card p-8 md:p-12 rounded-[2rem]">
-        <div className="flex items-center space-x-3 mb-8 pb-6 border-b border-border/50">
-          <div className="p-3 bg-primary/10 text-primary rounded-xl">
-            <PenTool className="w-6 h-6" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-heading font-bold">Edit Post</h1>
-            <p className="text-muted-foreground mt-1 text-sm font-medium">Make changes to your article...</p>
-          </div>
-        </div>
+        <PageHeader 
+          title="Edit Post" 
+          subtitle="Make changes to your article..." 
+          icon={PenTool} 
+        />
 
-        {error && (
-          <div className="mb-6 p-4 rounded-xl bg-destructive/10 text-destructive text-sm font-medium border border-destructive/20 animate-fade-in">
-            {error}
-          </div>
-        )}
+        <ErrorMessage message={error} />
 
         <AIAssistant 
           title={title}
@@ -202,7 +197,7 @@ export default function EditPost() {
             </Button>
             <Button type="submit" className="min-w-[120px]" disabled={isLoading}>
               {isLoading ? (
-                <div className="custom-loader w-5 h-5" />
+                <Loader size="sm" />
               ) : (
                 <>Save Changes <CheckCircle className="w-4 h-4 ml-2" /></>
               )}
