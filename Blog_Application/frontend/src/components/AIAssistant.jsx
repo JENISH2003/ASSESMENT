@@ -1,6 +1,8 @@
 import { useState, useRef } from 'react';
 import axios from 'axios';
 import axiosInstance from '../services/axiosInstance';
+import { Button } from './ui/Button';
+import { Wand2, XCircle, CheckCircle, FileText, Tag, Type } from 'lucide-react';
 
 export default function AIAssistant({ 
   title, setTitle, 

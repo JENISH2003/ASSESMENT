@@ -1,4 +1,5 @@
 const User = require("../models/User");
+const BlogHistory = require("../models/BlogHistory");
 const cloudinary = require("../config/cloudinary");
 const AppError = require("../utils/AppError");
 
@@ -80,6 +81,79 @@ const toggleBlockStatus = async (userId) => {
   return user;
 };
 
+const getUserHistory = async (userId) => {
+  const user = await User.findById(userId).select("-password");
+  if (!user) throw new AppError("User not found", 404);
+
+  const Post = require("../models/Post");
+  const posts = await Post.find({ author: userId }).lean();
+
+  const history = await BlogHistory.find({ userId }).sort({ date: 1 }).lean();
+
+  let totalBlogs = 0;
+  let totalUpdates = 0;
+  let totalDeletions = 0;
+
+  history.forEach(item => {
+    if (item.action === "Created") totalBlogs++;
+    if (item.action === "Updated") totalUpdates++;
+    if (item.action === "Deleted") totalDeletions++;
+  });
+
+  const historyByBlogId = {};
+  history.forEach(item => {
+    const idStr = item.blogId ? item.blogId.toString() : "unknown";
+    if (!historyByBlogId[idStr]) {
+      historyByBlogId[idStr] = [];
+    }
+    historyByBlogId[idStr].push(item);
+  });
+
+  const blogsData = posts.map(post => {
+    const idStr = post._id.toString();
+    const blogHistory = historyByBlogId[idStr] || [];
+    delete historyByBlogId[idStr];
+    return {
+      _id: post._id,
+      title: post.title,
+      isDeleted: post.isDeleted,
+      tags: post.tags || [],
+      history: blogHistory,
+      totalCount: blogHistory.length
+    }
+  });
+
+  Object.keys(historyByBlogId).forEach(idStr => {
+    if (idStr !== "unknown") {
+       const bHist = historyByBlogId[idStr];
+       if (bHist.length > 0) {
+          blogsData.push({
+             _id: idStr,
+             title: bHist[0].blogTitle,
+             isDeleted: true,
+             tags: [],
+             history: bHist,
+             totalCount: bHist.length
+          });
+       }
+    }
+  });
+
+  return {
+    user: {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      avatarUrl: user.avatarUrl,
+      avatarThumbUrl: user.avatarThumbUrl,
+    },
+    totalBlogs,
+    totalUpdates,
+    totalDeletions,
+    blogs: blogsData
+  };
+};
+
 module.exports = {
   updateProfilePicture,
   getAllUsers,
@@ -87,4 +161,5 @@ module.exports = {
   updateUser,
   deleteUser,
   toggleBlockStatus,
+  getUserHistory,
 };

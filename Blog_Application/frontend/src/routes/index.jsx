@@ -13,6 +13,7 @@ import EditPost from "../pages/EditPost";
 import PostDetail from "../pages/PostDetail";
 import Contact from "../pages/Contact";
 import SuperAdminUsers from "../pages/SuperAdminUsers";
+import UserDetails from "../pages/UserDetails";
 import NotFound from "../pages/NotFound";
 import ProtectedRoute from "./ProtectedRoutes";
 
@@ -34,6 +35,7 @@ const router = createBrowserRouter([
       { path: "post/:id", element: <PostDetail /> },
       { path: "contact", element: <ProtectedRoute><Contact /></ProtectedRoute> },
       { path: "superadmin/users", element: <SuperAdminUsers /> },
+      { path: "superadmin/users/:id", element: <UserDetails /> },
       { path: "*", element: <NotFound /> },
     ],
   },

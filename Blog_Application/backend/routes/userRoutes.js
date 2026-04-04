@@ -20,5 +20,6 @@ router.get("/:id", protect, roleMiddleware("superadmin"), userController.getUser
 router.put("/:id", protect, roleMiddleware("superadmin"), userController.updateUser);
 router.delete("/:id", protect, roleMiddleware("superadmin"), userController.deleteUser);
 router.patch("/:id/block", protect, roleMiddleware("superadmin"), userController.toggleBlockStatus);
+router.get("/:id/history", protect, roleMiddleware("superadmin"), userController.getUserHistory);
 
 module.exports = router;

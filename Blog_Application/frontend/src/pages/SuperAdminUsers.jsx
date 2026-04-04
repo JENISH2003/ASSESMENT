@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axiosInstance from "../services/axiosInstance";
 import { useAuth } from "../context/AuthContext";
 import { Users, Search, Shield, ShieldOff, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function SuperAdminUsers() {
   const { user } = useAuth();
@@ -61,7 +62,7 @@ export default function SuperAdminUsers() {
     }
     return true;
   });
-  const limit = 10;
+  const limit = 5;
   const totalPages = Math.ceil(displayUsers.length / limit) || 1;
   const currentUsers = displayUsers.slice((currentPage - 1) * limit, currentPage * limit);
 
@@ -142,9 +143,15 @@ export default function SuperAdminUsers() {
                 </div>
               </div>
               
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap sm:flex-nowrap justify-end items-center">
                 {u.role !== "superadmin" && (
                   <>
+                    <Link
+                      to={`/superadmin/users/${u._id}`}
+                      className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all bg-blue-500/10 text-blue-500 hover:bg-blue-500/20"
+                    >
+                      View Details
+                    </Link>
                     <button
                       onClick={() => handleToggleBlock(u._id)}
                       className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${

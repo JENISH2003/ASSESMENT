@@ -11,6 +11,14 @@ const createPost = async ({ title, content, author, tags = [], imageUrl = "" }) 
     imageUrl,
   });
 
+  const BlogHistory = require("../models/BlogHistory");
+  await BlogHistory.create({
+    userId: author,
+    blogId: post._id,
+    blogTitle: post.title,
+    action: "Created"
+  });
+
   return post;
 };
 
@@ -89,6 +97,14 @@ const updatePost = async (postId, updateData, user) => {
 
   await post.save();
 
+  const BlogHistory = require("../models/BlogHistory");
+  await BlogHistory.create({
+    userId: user._id,
+    blogId: post._id,
+    blogTitle: post.title,
+    action: "Updated"
+  });
+
   return post;
 };
 
@@ -108,6 +124,14 @@ const deletePost = async (postId, user) => {
   // Soft delete: hide the post from the application but keep data in database
   post.isDeleted = true;
   await post.save();
+
+  const BlogHistory = require("../models/BlogHistory");
+  await BlogHistory.create({
+    userId: user._id,
+    blogId: post._id,
+    blogTitle: post.title,
+    action: "Deleted"
+  });
 
   return { message: "Post deleted successfully" };
 };

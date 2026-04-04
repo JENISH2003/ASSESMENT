@@ -66,6 +66,15 @@ const toggleBlockStatus = async (req, res, next) => {
   }
 };
 
+const getUserHistory = async (req, res, next) => {
+  try {
+    const historyData = await userService.getUserHistory(req.params.id);
+    res.status(200).json({ success: true, data: historyData });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   uploadProfilePicture,
   getAllUsers,
@@ -73,4 +82,5 @@ module.exports = {
   updateUser,
   deleteUser,
   toggleBlockStatus,
+  getUserHistory,
 };

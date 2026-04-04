@@ -103,7 +103,6 @@ export default function PostDetail() {
         <div className="flex flex-wrap justify-center items-center gap-4 text-sm font-medium text-muted-foreground mb-6">
           <span className="flex items-center bg-secondary/50 px-3 py-1.5 rounded-full"><Calendar className="w-4 h-4 mr-2" /> {dateStr}</span>
           <span className="flex items-center bg-secondary/50 px-3 py-1.5 rounded-full"><User className="w-4 h-4 mr-2" /> {post.author?.name || "Anonymous"}</span>
-          <span className="flex items-center bg-secondary/50 px-3 py-1.5 rounded-full"><Clock className="w-4 h-4 mr-2" /> {Math.max(1, Math.ceil(post.content?.length / 1000))} min read</span>
           <span className="flex items-center bg-secondary/50 px-3 py-1.5 rounded-full"><Eye className="w-4 h-4 mr-2" /> {post.views || 0} Views</span>
         </div>
         <h1 className="text-4xl md:text-6xl font-heading font-extrabold tracking-tight mb-6 leading-tight">

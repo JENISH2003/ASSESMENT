@@ -6,7 +6,7 @@ import { Button } from "../components/ui/Button";
 import ErrorMessage from "../components/ui/ErrorMessage";
 import Loader from "../components/ui/Loader";
 import AuthHeader from "../components/ui/AuthHeader";
-import { User, Mail, Lock, ArrowRight } from "lucide-react";
+import { User, Mail, Lock, ArrowRight, Eye, EyeOff } from "lucide-react";
 
 export default function Register() {
   const { register } = useContext(AuthContext);
@@ -14,6 +14,7 @@ export default function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -21,9 +22,12 @@ export default function Register() {
     e.preventDefault();
     setError("");
 
-    const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    const strongPasswordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     if (!strongPasswordRegex.test(password)) {
-      setError("Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character.");
+      setError(
+        "Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character.",
+      );
       return;
     }
 
@@ -54,9 +58,9 @@ export default function Register() {
           <div className="absolute bottom-0 right-0 w-32 h-32 bg-accent/20 blur-3xl rounded-full translate-x-1/2 translate-y-1/2" />
 
           <div className="relative z-10">
-            <AuthHeader 
-              title="Create Account" 
-              subtitle="Join our community of writers today" 
+            <AuthHeader
+              title="Create Account"
+              subtitle="Join our community of writers today"
             />
 
             <ErrorMessage message={error} />
@@ -96,13 +100,24 @@ export default function Register() {
                     <Lock className="h-4 w-4" />
                   </div>
                   <Input
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     placeholder="Password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className="pl-10 h-12 bg-background/50 backdrop-blur-sm border-border/50 focus:bg-background"
+                    className="pl-10 pr-10 h-12 bg-background/50 backdrop-blur-sm border-border/50 focus:bg-background"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-3 flex items-center text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {showPassword ? (
+                      <Eye className="h-4 w-4" />
+                    ) : (
+                      <EyeOff className="h-4 w-4" />
+                    )}
+                  </button>
                 </div>
               </div>
 
