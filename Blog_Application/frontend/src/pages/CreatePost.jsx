@@ -1,14 +1,20 @@
 import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import axiosInstance from "../services/axiosInstance";
 import { AuthContext } from "../context/AuthContext";
 import { Input } from "../components/ui/Input";
 import { Button } from "../components/ui/Button";
 import ErrorMessage from "../components/ui/ErrorMessage";
-import Loader from "../components/ui/Loader";
 import PageHeader from "../components/ui/PageHeader";
-import AIAssistant from "../components/AIAssistant";
-import { PenTool, Tag, Image as ImageIcon, Send } from "lucide-react";
+import Loader from "../components/ui/Loader";
+
+import { PenTool, Tag, Image as ImageIcon, Send, X } from "lucide-react";
+
+const ALLOWED_TAGS = [
+  "Business", "Education", "Entertainment", "Fashion", "Finance", 
+  "Fitness", "Food", "Gaming", "Health", "Lifestyle", 
+  "Programming", "Science", "Sports", "Technology", "Travel"
+];
 
 export default function CreatePost() {
   const { user } = useContext(AuthContext);
@@ -44,6 +50,25 @@ export default function CreatePost() {
     }
   };
 
+  const handleTagToggle = (tag) => {
+    let currentTags = tags ? tags.split(",").map(t => t.trim().toLowerCase()).filter(Boolean) : [];
+    const lowerTag = tag.toLowerCase();
+    
+    if (currentTags.includes(lowerTag)) {
+      currentTags = currentTags.filter(t => t !== lowerTag);
+    } else {
+      currentTags.push(lowerTag);
+    }
+    
+    // Convert back to Pascal Case for visual aesthetic in input
+    const formattedTags = currentTags.map(t => {
+      const original = ALLOWED_TAGS.find(at => at.toLowerCase() === t);
+      return original || t; // fallback to lowercase if somehow custom
+    });
+    
+    setTags(formattedTags.join(", "));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!title || !content) {
@@ -70,12 +95,10 @@ export default function CreatePost() {
         formData.append("image", image);
       }
 
-      await axios.post(`${apiUrl}/api/posts`, formData, {
+      await axiosInstance.post(`/posts`, formData, {
         headers: {
-          "Content-Type": "multipart/form-data",
-          "Authorization": `Bearer ${user.token}`
-        },
-        withCredentials: true
+          "Content-Type": "multipart/form-data"
+        }
       });
       
       navigate("/");
@@ -98,14 +121,7 @@ export default function CreatePost() {
 
         <ErrorMessage message={error} />
 
-        <AIAssistant 
-          title={title}
-          setTitle={setTitle}
-          content={content}
-          setContent={setContent}
-          tags={tags}
-          setTags={setTags}
-        />
+
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
@@ -131,18 +147,45 @@ export default function CreatePost() {
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-sm font-semibold ml-1 flex items-center"><Tag className="w-4 h-4 mr-1"/> Tags (comma separated)</label>
-              <Input
-                type="text"
-                placeholder="tech, lifestyle, coding..."
-                value={tags}
-                onChange={(e) => setTags(e.target.value)}
-                className="bg-background/50"
-              />
+            <div className="space-y-3 md:col-span-2 border border-border/50 p-6 rounded-2xl bg-secondary/5 relative">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-semibold ml-1 flex items-center">
+                  <Tag className="w-4 h-4 mr-1"/> Select Categories (Tags)
+                </label>
+                {tags && (
+                  <button 
+                    type="button" 
+                    onClick={() => setTags("")} 
+                    className="text-xs font-semibold text-muted-foreground hover:text-destructive flex items-center transition-colors bg-background px-2.5 py-1 rounded-full border border-border hover:border-destructive/30"
+                  >
+                    <X className="w-3 h-3 mr-1" /> Clear All
+                  </button>
+                )}
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 pt-2">
+                {ALLOWED_TAGS.map(tag => {
+                  const currentTags = tags ? tags.split(",").map(t => t.trim().toLowerCase()) : [];
+                  const isSelected = currentTags.includes(tag.toLowerCase());
+                  
+                  return (
+                    <button
+                      key={tag}
+                      type="button"
+                      onClick={() => handleTagToggle(tag)}
+                      className={`w-full px-3 py-2.5 rounded-xl text-sm font-medium transition-all active:scale-95 duration-200 border text-center ${
+                        isSelected 
+                          ? "bg-primary/15 text-primary border-primary shadow-sm"
+                          : "bg-background text-muted-foreground hover:bg-secondary/80 hover:text-foreground border-border/70 hover:border-primary/30"
+                      }`}
+                    >
+                      {tag}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
             
-            <div className="space-y-2">
+            <div className="space-y-2 md:col-span-2">
               <label className="text-sm font-semibold ml-1 flex items-center"><ImageIcon className="w-4 h-4 mr-1"/> Cover Image</label>
               <Input
                 type="file"

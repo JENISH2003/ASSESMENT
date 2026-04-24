@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect, useRef } from "react";
+import { useContext, useState, useEffect, useRef, useMemo } from "react";
 import { AuthContext } from "../context/AuthContext";
 import axiosInstance from "../services/axiosInstance";
 import { Link } from "react-router-dom";
@@ -97,12 +97,14 @@ export default function Dashboard() {
     );
   }
 
-  const totalViews = posts.reduce((sum, post) => sum + (post.views || 0), 0);
+  const totalViews = useMemo(() => {
+    return posts.reduce((sum, post) => sum + (post.views || 0), 0);
+  }, [posts]);
 
-  const stats = [
+  const stats = useMemo(() => [
     { label: "Total Posts", value: posts.length.toString(), icon: LayoutIcon },
     { label: "Total Views", value: totalViews.toString(), icon: User },
-  ];
+  ], [posts.length, totalViews]);
 
   return (
     <div className="max-w-6xl mx-auto py-10 animate-fade-in">

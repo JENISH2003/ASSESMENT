@@ -11,14 +11,41 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
     },
-    password: { type: String, required: true, minlength: 6, select: false },
-    role: { type: String, enum: ["user", "admin", "superadmin"], default: "user" },
-    isBlocked: { type: Boolean, default: false },
-    isVerified: { type: Boolean, default: false },
-    refreshTokens: { type: [String], default: [] },
-    avatarUrl: { type: String, default: "" },
-    avatarThumbUrl: { type: String, default: "" },
-    avatarPublicId: { type: String, default: "" },
+    password: {
+      type: String,
+      required: true,
+      minlength: 6,
+      select: false,
+    },
+    role: {
+      type: String,
+      enum: ["user", "admin", "superadmin"],
+      default: "user",
+    },
+    isBlocked: {
+      type: Boolean,
+      default: false,
+    },
+    isVerified: { 
+      type: Boolean, 
+      default: false 
+    },
+    refreshTokens: { 
+      type: [String], 
+      default: [] 
+    },
+    avatarUrl: { 
+      type: String, 
+      default: "" 
+    },
+    avatarThumbUrl: { 
+      type: String, 
+      default: "" 
+    },
+    avatarPublicId: { 
+      type: String, 
+      default: "" 
+    },
   },
   { timestamps: true },
 );

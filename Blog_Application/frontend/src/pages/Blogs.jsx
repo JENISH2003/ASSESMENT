@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { X, Search, Menu, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
@@ -26,7 +26,7 @@ export default function Blogs() {
   }, []);
 
   useEffect(() => {
-    const delayFetch = setTimeout(async () => {
+    const fetchPosts = async () => {
       setLoading(true);
       setError(null);
 
@@ -49,9 +49,14 @@ export default function Blogs() {
       } finally {
         setLoading(false);
       }
-    }, 500);
+    };
 
-    return () => clearTimeout(delayFetch);
+    if (searchTerm) {
+      const delayFetch = setTimeout(() => fetchPosts(), 300);
+      return () => clearTimeout(delayFetch);
+    } else {
+      fetchPosts();
+    }
   }, [searchTerm, tagFilter, currentPage]);
 
   const handleSearchChange = (e) => {
@@ -105,10 +110,13 @@ export default function Blogs() {
     "Photography",
     "Science",
   ];
-  const UNIQUE_CATEGORIES = ["all", ...Array.from(new Set(RAW_CATEGORIES))];
-  const filteredCategories = UNIQUE_CATEGORIES.filter((cat) =>
-    cat.toLowerCase().includes(categorySearchTerm.toLowerCase()),
-  );
+  const UNIQUE_CATEGORIES = useMemo(() => ["all", ...Array.from(new Set(RAW_CATEGORIES))], []);
+  
+  const filteredCategories = useMemo(() => {
+    return UNIQUE_CATEGORIES.filter((cat) =>
+      cat.toLowerCase().includes(categorySearchTerm.toLowerCase()),
+    );
+  }, [UNIQUE_CATEGORIES, categorySearchTerm]);
 
   const containerVariants = {
     hidden: { opacity: 0 },

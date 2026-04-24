@@ -16,7 +16,7 @@ const blogHistorySchema = new mongoose.Schema({
   },
   action: { 
     type: String, 
-    enum: ['Created', 'Updated'], 
+    enum: ['Created', 'Updated', 'Deleted'], 
     required: true 
   },
   date: { 

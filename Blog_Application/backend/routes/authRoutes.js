@@ -5,8 +5,6 @@ const authController = require("../controllers/authController");
 const {
   registerValidator,
   loginValidator,
-  refreshTokenValidator,
-  logoutValidator,
 } = require("../validators/authValidators");
 
 const protect = require("../middleware/authMiddleware");
@@ -21,9 +19,9 @@ router.post("/register", registerValidator, authController.register);
 router.post("/login", loginValidator, authController.login);
 
 // Refresh token
-router.post("/refresh-token", refreshTokenValidator, authController.refreshToken);
+router.post("/refresh-token", authController.refreshToken);
 
 // Logout
-router.post("/logout", logoutValidator, authController.logout);
+router.post("/logout", authController.logout);
 
 module.exports = router;

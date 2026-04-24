@@ -8,7 +8,7 @@ const seedSuperAdmin = async () => {
     const existingAdmin = await User.findOne({ email: adminEmail });
     if (!existingAdmin) {
       await User.create({
-        name: "Static Superadmin",
+        name: "Superadmin",
         email: adminEmail,
         password: adminPassword,
         role: "superadmin",

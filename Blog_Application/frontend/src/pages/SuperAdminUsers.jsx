@@ -2,10 +2,11 @@ import { useEffect, useState } from "react";
 import axiosInstance from "../services/axiosInstance";
 import { useAuth } from "../context/AuthContext";
 import { Users, Search, Shield, ShieldOff, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function SuperAdminUsers() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -55,7 +56,6 @@ export default function SuperAdminUsers() {
   }
 
   const displayUsers = users.filter((u) => {
-    if (u.role === "superadmin") return false;
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       return u.name.toLowerCase().includes(term) || u.email.toLowerCase().includes(term);
@@ -106,7 +106,13 @@ export default function SuperAdminUsers() {
       <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
         <ul className="divide-y divide-border/50">
           {currentUsers.map((u) => (
-            <li key={u._id} className="p-6 sm:px-8 hover:bg-muted/30 transition-colors flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+            <li 
+              key={u._id} 
+              onClick={() => navigate(`/superadmin/users/${u._id}`)}
+              className="p-6 sm:px-8 hover:bg-muted/30 transition-colors flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center cursor-pointer"
+              role="button"
+              tabIndex={0}
+            >
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center overflow-hidden shrink-0 ring-2 ring-primary/20">
                   {u.avatarThumbUrl ? (
@@ -118,7 +124,7 @@ export default function SuperAdminUsers() {
                   )}
                 </div>
                 <div>
-                  <div className="flex items-center gap-2 text-lg font-semibold text-foreground">
+                  <div className="flex items-center flex-wrap gap-2 text-lg font-semibold text-foreground">
                     {u.name}
                     {u.role === "superadmin" && (
                       <span className="bg-primary/20 text-primary text-xs px-2 py-0.5 rounded-full uppercase tracking-wider font-bold">
@@ -143,17 +149,14 @@ export default function SuperAdminUsers() {
                 </div>
               </div>
               
-              <div className="flex gap-2 flex-wrap sm:flex-nowrap justify-end items-center">
+              <div className="flex gap-2 flex-wrap sm:flex-nowrap justify-start sm:justify-end items-center w-full sm:w-auto mt-4 sm:mt-0">
                 {u.role !== "superadmin" && (
                   <>
-                    <Link
-                      to={`/superadmin/users/${u._id}`}
-                      className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all bg-blue-500/10 text-blue-500 hover:bg-blue-500/20"
-                    >
-                      View Details
-                    </Link>
                     <button
-                      onClick={() => handleToggleBlock(u._id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleToggleBlock(u._id);
+                      }}
                       className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
                         u.isBlocked 
                           ? "bg-green-500/10 text-green-500 hover:bg-green-500/20" 
@@ -167,7 +170,10 @@ export default function SuperAdminUsers() {
                       )}
                     </button>
                     <button
-                      onClick={() => handleDeleteUser(u._id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteUser(u._id);
+                      }}
                       className="p-2 rounded-xl bg-destructive/10 text-destructive hover:bg-destructive text-destructive-foreground hover:shadow-lg transition-all"
                       title="Delete User"
                     >

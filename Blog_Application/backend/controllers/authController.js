@@ -1,23 +1,31 @@
 // controllers/authController.js
 const authService = require("../services/authService");
 
+const cookieOptions = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "strict",
+};
+
+// We ONLY need options for the Refresh Token now!
+const refreshTokenOptions = { 
+  ...cookieOptions, 
+  maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days 
+};
+
 // ================= REGISTER =================
 const register = async (req, res, next) => {
   try {
     const result = await authService.registerUser(req.body);
 
-    // Set access token in HTTP-only cookie
-    res.cookie("token", result.token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 15 * 60 * 1000, // 15 minutes
-    });
+    // Rule: Set Refresh Token in Secure Cookie
+    res.cookie("refreshToken", result.refreshToken, refreshTokenOptions);
 
-    // Return user data + refresh token in JSON
+    // Rule: Send Access Token directly in JSON Response Body
     res.status(201).json({
       success: true,
       message: "User registered successfully",
+      token: result.token, // This is the Access Token
       data: {
         _id: result._id,
         name: result.name,
@@ -25,12 +33,10 @@ const register = async (req, res, next) => {
         role: result.role,
         avatarUrl: result.avatarUrl || "",
         avatarThumbUrl: result.avatarThumbUrl || "",
-        token: result.token,
-        refreshToken: result.refreshToken, // long-lived
       },
     });
   } catch (error) {
-    next(error); // send to centralized error middleware
+    next(error);
   }
 };
 
@@ -39,18 +45,14 @@ const login = async (req, res, next) => {
   try {
     const result = await authService.loginUser(req.body);
 
-    // Set access token in HTTP-only cookie
-    res.cookie("token", result.token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 15 * 60 * 1000, // 15 minutes
-    });
+    // Rule: Set Refresh Token in Secure Cookie
+    res.cookie("refreshToken", result.refreshToken, refreshTokenOptions);
 
-    // Return user data + refresh token in JSON
+    // Rule: Send Access Token directly in JSON Response Body
     res.status(200).json({
       success: true,
       message: "Login successful",
+      token: result.token, // This is the Access Token
       data: {
         _id: result._id,
         name: result.name,
@@ -58,8 +60,6 @@ const login = async (req, res, next) => {
         role: result.role,
         avatarUrl: result.avatarUrl || "",
         avatarThumbUrl: result.avatarThumbUrl || "",
-        token: result.token,
-        refreshToken: result.refreshToken,
       },
     });
   } catch (error) {
@@ -70,22 +70,23 @@ const login = async (req, res, next) => {
 // ================= REFRESH TOKEN =================
 const refreshToken = async (req, res, next) => {
   try {
-    const { refreshToken } = req.body;
-    if (!refreshToken) throw new Error("No refresh token provided");
+    // Read the old refresh token from the browser cookie
+    const rawRefreshToken = req.cookies?.refreshToken;
+    if (!rawRefreshToken) {
+      return res.status(401).json({ success: false, message: "No refresh token provided" });
+    }
 
-    const newAccessToken = await authService.refreshAccessToken(refreshToken);
+    // This will rotate the token in the database and return a new pair
+    const { token: newAccessToken, refreshToken: newRefreshToken } = await authService.refreshAccessToken(rawRefreshToken);
 
-    // Set new access token in HTTP-only cookie
-    res.cookie("token", newAccessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 15 * 60 * 1000,
-    });
+    // Set the NEW Refresh Token in the Cookie
+    res.cookie("refreshToken", newRefreshToken, refreshTokenOptions);
 
+    // Send the NEW Access Token directly in the JSON Response
     res.status(200).json({
       success: true,
-      message: "Access token refreshed",
+      message: "Access and refresh tokens rotated successfully",
+      token: newAccessToken, // Frontend will save this in its memory
     });
   } catch (error) {
     next(error);
@@ -95,16 +96,15 @@ const refreshToken = async (req, res, next) => {
 // ================= LOGOUT =================
 const logout = async (req, res, next) => {
   try {
-    const { refreshToken } = req.body;
+    const rawRefreshToken = req.cookies?.refreshToken;
 
-    // Remove refresh token from user document
-    await authService.logoutUser(refreshToken);
+    // Remove specific refresh token from user document in the database
+    if (rawRefreshToken) {
+      await authService.logoutUser(rawRefreshToken);
+    }
 
-    // Clear access token cookie
-    res.cookie("token", "", {
-      httpOnly: true,
-      expires: new Date(0),
-    });
+    // Clear ONLY the Refresh Token Cookie (since the Access Token cookie doesn't exist anymore)
+    res.cookie("refreshToken", "", { ...cookieOptions, maxAge: 0 });
 
     res.status(200).json({
       success: true,
@@ -119,7 +119,6 @@ const logout = async (req, res, next) => {
 const getMe = async (req, res, next) => {
   try {
     const user = req.user;
-    const token = req.cookies?.token || (req.headers.authorization?.startsWith("Bearer ") ? req.headers.authorization.split(" ")[1] : null);
 
     res.status(200).json({
       success: true,
@@ -130,7 +129,6 @@ const getMe = async (req, res, next) => {
         role: user.role,
         avatarUrl: user.avatarUrl || "",
         avatarThumbUrl: user.avatarThumbUrl || "",
-        token: token,
       },
     });
   } catch (error) {

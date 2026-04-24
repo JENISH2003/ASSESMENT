@@ -1,7 +1,17 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import { ArrowRight, Sparkles, Code, ExternalLink, Activity, BookOpen, Layers, Rss, PenLine } from "lucide-react";
+import {
+  ArrowRight,
+  Sparkles,
+  Code,
+  ExternalLink,
+  Activity,
+  BookOpen,
+  Layers,
+  Rss,
+  PenLine,
+} from "lucide-react";
 import BlogCard from "../components/BlogCard";
 import Loader from "../components/ui/Loader";
 
@@ -29,8 +39,7 @@ export default function Home() {
     fetchPosts();
   }, []);
 
-  const featuredPost = posts[0];
-  const recentPosts = posts.slice(1, 4);
+  const latestPosts = posts.slice(0, 3);
 
   return (
     <div className="min-h-screen bg-background text-foreground pb-24 font-sans">
@@ -79,68 +88,52 @@ export default function Home() {
           </div>
         ) : (
           <div className="space-y-16 animate-fade-in mx-auto w-full min-h-[calc(100vh-80px)] flex flex-col justify-center py-10">
-            {/* Featured Post - highly readable layout */}
-            {featuredPost && (
-              <section className="mb-16">
-                <Link
-                  to={`/post/${featuredPost._id}`}
-                  className="group block focus:outline-none focus:ring-2 focus:ring-primary rounded-3xl"
-                >
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 items-center">
-                    <div className="relative aspect-[16/10] overflow-hidden rounded-[2rem] bg-secondary/20 shadow-sm group-hover:shadow-md transition-shadow duration-300 w-full border border-border/40">
-                      <img
-                        src={
-                          featuredPost.imageUrl ||
-                          "https://images.unsplash.com/photo-1499750310107-5fef28a66643?q=80&w=2670&auto=format&fit=crop"
-                        }
-                        alt={featuredPost.title}
-                        className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-700 ease-in-out"
-                        loading="eager"
-                      />
-                    </div>
-                    <div className="flex flex-col justify-center space-y-5 lg:pr-8 py-4">
-                      <div className="flex flex-wrap items-center gap-2 text-sm font-medium text-muted-foreground">
-                        <span className="flex items-center space-x-2 bg-secondary/40 px-3 py-1.5 rounded-full">
-                          <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-[10px] uppercase">
-                            {featuredPost.author?.name
-                              ? featuredPost.author.name.charAt(0)
-                              : "A"}
-                          </div>
-                          <span className="text-foreground/80">
-                            {featuredPost.author?.name || "Anonymous"}
-                          </span>
-                        </span>
-                        <span>•</span>
-                        <time dateTime={featuredPost.createdAt}>
-                          {featuredPost.createdAt
-                            ? new Date(
-                                featuredPost.createdAt,
-                              ).toLocaleDateString("en-US", {
-                                month: "short",
-                                day: "numeric",
-                                year: "numeric",
-                              })
-                            : "Jan 1, 2024"}
-                        </time>
-                      </div>
-                      <h2 className="text-3xl lg:text-5xl font-extrabold tracking-tight text-foreground group-hover:text-primary transition-colors leading-[1.15] line-clamp-3">
-                        {featuredPost.title}
-                      </h2>
-                      <p className="text-lg text-muted-foreground line-clamp-3 leading-relaxed">
-                        {featuredPost.content}
-                      </p>
-                      <div className="pt-2 text-primary font-semibold hover:underline flex items-center underline-offset-4">
-                        Read full story{" "}
-                        <ArrowRight className="w-4 h-4 ml-1.5" />
-                      </div>
-                    </div>
+            {/* About platform CTA Section */}
+            <section className="mb-20 mt-8">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+                <div className="relative aspect-square sm:aspect-video lg:aspect-[4/3] rounded-[2.5rem] overflow-hidden shadow-2xl border border-border/50 group">
+                  <div className="absolute inset-0 bg-primary/20 mix-blend-overlay z-10 group-hover:bg-transparent transition-colors duration-700 pointer-events-none" />
+                  <img
+                    src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2671&auto=format&fit=crop"
+                    alt="Creative team collaborating"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent z-10 pointer-events-none" />
+                </div>
+
+                <div className="flex flex-col justify-center space-y-6 lg:pl-4">
+                  <div className="inline-flex items-center space-x-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-bold w-max shadow-sm">
+                    <Sparkles className="w-4 h-4" />
+                    <span>Discover Our Story</span>
                   </div>
-                </Link>
-              </section>
-            )}
+
+                  <h2 className="text-4xl lg:text-5xl font-heading font-extrabold tracking-tight text-foreground leading-[1.15]">
+                    Where great minds{" "}
+                    <span className="text-gradient">come to write.</span>
+                  </h2>
+
+                  <p className="text-xl text-muted-foreground leading-relaxed">
+                    We believe that every person has a story worth telling. Our
+                    platform provides a beautifully crafted, distraction-free
+                    environment designed to help you share your knowledge,
+                    connect with readers, and grow a dedicated audience.
+                  </p>
+
+                  <div className="pt-4">
+                    <Link
+                      to="/about"
+                      className="inline-flex items-center justify-center px-8 py-4 text-base font-bold text-primary-foreground bg-primary rounded-2xl hover:bg-primary/90 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-primary/20"
+                    >
+                      Read full story
+                      <ArrowRight className="w-5 h-5 ml-2" />
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </section>
 
             {/* Recent Posts Grid */}
-            {recentPosts.length > 0 && (
+            {latestPosts.length > 0 && (
               <section className="border-t border-border/50 pt-16">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-10 space-y-3 sm:space-y-0">
                   <h3 className="text-2xl font-bold tracking-tight text-foreground">
@@ -155,7 +148,7 @@ export default function Home() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
-                  {recentPosts.map((post) => (
+                  {latestPosts.map((post) => (
                     <BlogCard key={post._id} post={post} />
                   ))}
                 </div>

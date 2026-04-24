@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useEffect, useState, useMemo } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import axiosInstance from "../services/axiosInstance";
 import {
   User,
@@ -19,6 +19,7 @@ import ErrorMessage from "../components/ui/ErrorMessage";
 
 export default function UserDetails() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -59,19 +60,22 @@ export default function UserDetails() {
       </div>
     );
 
-  const { user, totalBlogs, totalUpdates, totalDeletions, blogs } = data;
+  const { user, totalBlogs, totalDeletions, blogs } = data;
 
-  const filteredBlogs =
-    blogs?.filter((blog) =>
+  const filteredBlogs = useMemo(() => {
+    return blogs?.filter((blog) =>
       blog.title.toLowerCase().includes(searchTerm.toLowerCase()),
     ) || [];
+  }, [blogs, searchTerm]);
 
   const limit = 5;
-  const totalPages = Math.ceil(filteredBlogs.length / limit) || 1;
-  const currentBlogs = filteredBlogs.slice(
-    (currentPage - 1) * limit,
-    currentPage * limit,
-  );
+  const totalPages = useMemo(() => Math.ceil(filteredBlogs.length / limit) || 1, [filteredBlogs.length]);
+  const currentBlogs = useMemo(() => {
+    return filteredBlogs.slice(
+      (currentPage - 1) * limit,
+      currentPage * limit,
+    );
+  }, [filteredBlogs, currentPage]);
 
   const handlePreviousPage = () => setCurrentPage((p) => Math.max(1, p - 1));
   const handleNextPage = () =>
@@ -116,7 +120,7 @@ export default function UserDetails() {
       </div>
 
       {/* Stats row */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
         <div className="glass p-6 rounded-2xl border border-border/50 flex items-center gap-4 hover:border-primary/30 transition-colors">
           <div className="p-4 bg-primary/10 rounded-2xl text-primary">
             <FileText className="w-6 h-6" />
@@ -127,19 +131,6 @@ export default function UserDetails() {
             </p>
             <p className="text-3xl font-heading font-bold text-foreground mt-1">
               {totalBlogs}
-            </p>
-          </div>
-        </div>
-        <div className="glass p-6 rounded-2xl border border-border/50 flex items-center gap-4 hover:border-primary/30 transition-colors">
-          <div className="p-4 bg-blue-500/10 rounded-2xl text-blue-500">
-            <Edit3 className="w-6 h-6" />
-          </div>
-          <div>
-            <p className="text-sm font-medium text-muted-foreground">
-              Total Updates
-            </p>
-            <p className="text-3xl font-heading font-bold text-foreground mt-1">
-              {totalUpdates}
             </p>
           </div>
         </div>
@@ -204,33 +195,56 @@ export default function UserDetails() {
           </div>
         ) : filteredBlogs.length > 0 ? (
           <div className="space-y-6">
-            {currentBlogs.map((blog) => (
+            {currentBlogs.map((blog) => {
+              const isDeleted = blog.history?.some(item => item.action === "Deleted");
+              
+              return (
               <div
                 key={blog._id}
-                className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden p-6"
+                onClick={() => navigate(`/post/${blog._id}`)}
+                role="button"
+                tabIndex={0}
+                className={`bg-card cursor-pointer rounded-2xl border shadow-md overflow-hidden p-6 relative transition-all duration-300 ${
+                  isDeleted
+                    ? "border-destructive/20 shadow-[0_4px_24px_-8px_rgba(239,68,68,0.25)] hover:shadow-[0_4px_24px_-4px_rgba(239,68,68,0.35)] opacity-90"
+                    : "border-green-500/20 shadow-[0_4px_24px_-8px_rgba(34,197,94,0.25)] hover:shadow-[0_4px_24px_-4px_rgba(34,197,94,0.35)]"
+                }`}
               >
                 <div className="mb-4 pb-4 border-b border-border/50">
-                  <h3 className="text-xl font-heading font-bold text-foreground">
-                    {blog.title}
-                  </h3>
-                  <div className="flex flex-wrap items-center gap-2 mt-2">
-                    {blog.tags && blog.tags.length > 0 ? (
-                      blog.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="text-xs font-medium bg-primary/10 text-primary px-2 py-1 rounded-md"
-                        >
-                          #{tag}
-                        </span>
-                      ))
-                    ) : (
-                      <span className="text-xs font-medium text-muted-foreground">
-                        No tags
+                  <div className="flex flex-col sm:flex-row justify-between sm:items-start gap-4">
+                    <div className="flex-1">
+                      <div className="flex items-center flex-wrap gap-2 mb-1">
+                        <h3 className="text-xl font-heading font-bold text-foreground">
+                          {blog.title}
+                        </h3>
+                        {isDeleted && (
+                          <span className="text-sm font-semibold text-destructive">
+                            (Deleted)
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2 mt-3">
+                        {blog.tags && blog.tags.length > 0 ? (
+                          blog.tags.map((tag) => (
+                            <span
+                              key={tag}
+                              className="text-xs font-medium bg-primary/10 text-primary px-2.5 py-1 rounded-md"
+                            >
+                              #{tag}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-xs font-medium text-muted-foreground bg-secondary/50 px-2.5 py-1 rounded-md">
+                            No tags
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="shrink-0 mt-2 sm:mt-0">
+                      <span className="inline-block text-xs font-semibold bg-secondary text-secondary-foreground px-3 py-1.5 rounded-lg border border-border/50">
+                        Total Actions: {blog.totalCount}
                       </span>
-                    )}
-                    <span className="text-xs font-semibold bg-secondary px-2.5 py-1 rounded-md ml-auto">
-                      Total Actions: {blog.totalCount}
-                    </span>
+                    </div>
                   </div>
                 </div>
 
@@ -272,7 +286,8 @@ export default function UserDetails() {
                   </p>
                 )}
               </div>
-            ))}
+              );
+            })}
 
             {/* Pagination Section */}
             <div className="flex justify-center items-center pt-8 space-x-2 animate-fade-in relative z-20">

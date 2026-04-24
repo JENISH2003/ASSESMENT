@@ -1,5 +1,6 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import axios from "axios";
+import { createContext, useContext, useEffect, useState, useCallback, useMemo } from "react";
+// Import our custom axios instance instead of standard axios
+import axiosInstance, { setAccessToken } from "../services/axiosInstance";
 
 export const AuthContext = createContext();
 
@@ -7,79 +8,99 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Axios base config
-  axios.defaults.baseURL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-  axios.defaults.withCredentials = true; // VERY IMPORTANT for cookies
-
-  // 🔹 Check auth status on app load
-  const checkAuth = async () => {
+  // ==========================================
+  // CHECK AUTH STATUS (Runs when app loads)
+  // ==========================================
+  const checkAuth = useCallback(async () => {
     try {
-      const res = await axios.get("/auth/me");
-      setUser(res.data.data);
-    } catch (error) {
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
-  };
+      // Step 1: Because React memory is wiped when the page reloads, 
+      // we must instantly ask the backend for a new Access Token using our Refresh Cookie.
+      const refreshRes = await axiosInstance.post("/auth/refresh-token");
+      
+      // Step 2: Store the new token securely in our variable memory
+      const newToken = refreshRes.data.token;
+      setAccessToken(newToken);
 
-  useEffect(() => {
-    checkAuth();
+      // Step 3: Now that we have an active token, we can securely get our user details
+      const userRes = await axiosInstance.get("/auth/me");
+      setUser(userRes.data.data);
+      
+    } catch (error) {
+      // If refresh fails (because there's no cookie, or their session expired), 
+      // it means the user is officially logged out. Let's clear their data.
+      setUser(null);
+      setAccessToken(null);
+    } finally {
+      // Stop the loading spinner regardless of success or failure
+      setLoading(false); 
+    }
   }, []);
 
-  // 🔹 Login
-  const login = async (formData) => {
-    const res = await axios.post("/auth/login", formData);
-    if (res.data.data.refreshToken) {
-      localStorage.setItem("refreshToken", res.data.data.refreshToken);
-    }
-    setUser(res.data.data);
-    return res;
-  };
+  // Run checkAuth once immediately when the app starts
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
 
-  // 🔹 Register
-  const register = async (formData) => {
-    const res = await axios.post("/auth/register", formData);
-    if (res.data.data.refreshToken) {
-      localStorage.setItem("refreshToken", res.data.data.refreshToken);
-    }
+  // ==========================================
+  // LOGIN USER
+  // ==========================================
+  const login = useCallback(async (formData) => {
+    const res = await axiosInstance.post("/auth/login", formData);
+    
+    // Update our React context with the user info
     setUser(res.data.data);
+    
+    // Save the new Access Token to memory
+    setAccessToken(res.data.token);
+    
     return res;
-  };
+  }, []);
 
-  // 🔹 Logout
-  const logout = async () => {
+  // ==========================================
+  // REGISTER USER
+  // ==========================================
+  const register = useCallback(async (formData) => {
+    const res = await axiosInstance.post("/auth/register", formData);
+    
+    // Update our React context with the user info
+    setUser(res.data.data);
+    
+    // Save the new Access Token to memory
+    setAccessToken(res.data.token);
+    
+    return res;
+  }, []);
+
+  // ==========================================
+  // LOGOUT USER
+  // ==========================================
+  const logout = useCallback(async () => {
     try {
-      const refreshToken = localStorage.getItem("refreshToken");
-      if (refreshToken) {
-        await axios.post("/auth/logout", { refreshToken });
-      } else {
-        // Fallback for case where we don't have it locally
-        await axios.post("/auth/logout", { refreshToken: "dummy_token" });
-      }
+      await axiosInstance.post("/auth/logout");
     } catch (error) {
       console.error("Logout error", error);
     } finally {
-      localStorage.removeItem("refreshToken");
+      // Instantly clear all frontend data to make sure they can't access secure pages
       setUser(null);
+      setAccessToken(null);
     }
-  };
+  }, []);
+
+  const contextValue = useMemo(() => ({
+    user,
+    loading,
+    login,
+    register,
+    logout,
+    setUser,
+  }), [user, loading, login, register, logout]);
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        loading,
-        login,
-        register,
-        logout,
-        setUser,
-      }}
-    >
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-// Custom hook
+// Custom hook so any component can easily use our auth functions
 export const useAuth = () => useContext(AuthContext);

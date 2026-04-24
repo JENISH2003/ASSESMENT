@@ -116,7 +116,7 @@ const deletePost = async (postId, user) => {
     throw new AppError("Post not found", 404);
   }
 
-  // Authorization check: User must be author OR admin OR superadmin
+  // Authorization check: User must be  admin OR superadmin
   if (post.author.toString() !== user._id.toString() && user.role !== "admin" && user.role !== "superadmin") {
     throw new AppError("You do not have permission to delete this post", 403);
   }

@@ -3,70 +3,37 @@ const jwt = require("jsonwebtoken");
 const generateToken = require("../utils/generateToken");
 const generateRefreshToken = require("../utils/generateRefreshToken");
 const AppError = require("../utils/AppError");
+const crypto = require("crypto"); // 1. Import crypto
+
+// Super simple wrapper to hash the token quickly
+const hashToken = (token) =>
+  crypto.createHash("sha256").update(token).digest("hex");
 
 // ================= REGISTER USER =================
 const registerUser = async ({ name, email, password }) => {
-  // Check if user already exists
   const existingUser = await User.findOne({ email });
   if (existingUser) {
     throw new AppError("User already exists with this email", 409);
   }
 
   // Strong password validation
-  const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+  const strongPasswordRegex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
   if (!strongPasswordRegex.test(password)) {
-    throw new AppError("Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character.", 400);
+    throw new AppError("Password must be at least 8 characters long", 400);
   }
 
-
-  // Determine role based on ADMIN_EMAIL environment variable
-  const role = process.env.ADMIN_EMAIL && email === process.env.ADMIN_EMAIL ? "admin" : "user";
-
-  // Create new user
+  const role =
+    process.env.ADMIN_EMAIL && email === process.env.ADMIN_EMAIL
+      ? "admin"
+      : "user";
   const user = await User.create({ name, email, password, role });
 
-  // Generate access token
   const token = generateToken(user._id);
-
-  // Generate refresh token
   const refreshToken = generateRefreshToken(user._id);
 
-  // Save refresh token in user document for multi-device login
-  user.refreshTokens.push(refreshToken);
-  await user.save();
-
-  return {
-    _id: user._id,
-    name: user.name,
-    email: user.email,
-    role: user.role,
-    avatarUrl: user.avatarUrl,
-    avatarThumbUrl: user.avatarThumbUrl,
-    token,        // access token
-    refreshToken, // refresh token
-  };
-};
-
-// ================= LOGIN USER =================
-const loginUser = async ({ email, password }) => {
-  // Find user with password
-  const user = await User.findOne({ email }).select("+password");
-  if (!user) {
-    throw new AppError("Invalid email or password", 401);
-  }
-
-  // Compare password
-  const isMatch = await user.comparePassword(password);
-  if (!isMatch) {
-    throw new AppError("Invalid email or password", 401);
-  }
-
-  // Generate tokens
-  const token = generateToken(user._id);               // short-lived access token
-  const refreshToken = generateRefreshToken(user._id); // long-lived refresh token
-
-  // Save refresh token for multi-device login
-  user.refreshTokens.push(refreshToken);
+  // 2. Wrap the token in hashToken() before saving
+  user.refreshTokens.push(hashToken(refreshToken));
   await user.save();
 
   return {
@@ -81,17 +48,47 @@ const loginUser = async ({ email, password }) => {
   };
 };
 
-const refreshAccessToken = async (refreshToken) => {
-  if (!refreshToken) throw new AppError("No refresh token provided", 400);
+// ================= LOGIN USER =================
+const loginUser = async ({ email, password }) => {
+  const user = await User.findOne({ email }).select("+password");
+  if (!user) throw new AppError("Invalid email or password", 401);
+
+  const isMatch = await user.comparePassword(password);
+  if (!isMatch) throw new AppError("Invalid email or password", 401);
+
+  const token = generateToken(user._id);
+  const refreshToken = generateRefreshToken(user._id);
+
+  // 2. Wrap the token in hashToken() before storing
+  user.refreshTokens.push(hashToken(refreshToken));
+  await user.save();
+
+  return {
+    _id: user._id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    avatarUrl: user.avatarUrl,
+    avatarThumbUrl: user.avatarThumbUrl,
+    token,
+    refreshToken,
+  };
+};
+
+// ================= REFRESH TOKEN ROTATION =================
+const refreshAccessToken = async (rawRefreshToken) => {
+  if (!rawRefreshToken) throw new AppError("No refresh token provided", 400);
 
   const secret = process.env.JWT_REFRESH_SECRET;
-  if (!secret) {
-    throw new AppError("Server misconfiguration: JWT_REFRESH_SECRET missing", 500);
-  }
+  if (!secret)
+    throw new AppError(
+      "Server misconfiguration: JWT_REFRESH_SECRET missing",
+      500,
+    );
 
   let decoded;
   try {
-    decoded = jwt.verify(refreshToken, secret);
+    decoded = jwt.verify(rawRefreshToken, secret);
   } catch (error) {
     throw new AppError("Invalid or expired refresh token", 401);
   }
@@ -99,24 +96,42 @@ const refreshAccessToken = async (refreshToken) => {
   const user = await User.findById(decoded.id);
   if (!user) throw new AppError("User not found", 404);
 
-  const tokenExists = user.refreshTokens.includes(refreshToken);
-  if (!tokenExists) {
-    throw new AppError("Refresh token revoked or invalid", 401);
+  // 3. Hash the raw token the user gave us to see if it matches the DB
+  const hashedRawToken = hashToken(rawRefreshToken);
+  if (!user.refreshTokens.includes(hashedRawToken)) {
+    throw new AppError("Refresh token is invalid or already used", 401);
   }
 
-  return generateToken(user._id);
+  // Generate new pair
+  const newToken = generateToken(user._id);
+  const newRefreshToken = generateRefreshToken(user._id);
+
+  // 4. Remove the old hashed token, and insert the new hashed token
+  user.refreshTokens = user.refreshTokens.filter((t) => t !== hashedRawToken);
+  user.refreshTokens.push(hashToken(newRefreshToken));
+  await user.save();
+
+  return { token: newToken, refreshToken: newRefreshToken };
 };
 
 // ================= LOGOUT USER =================
-const logoutUser = async (refreshToken) => {
-  if (!refreshToken) throw new AppError("No refresh token provided", 400);
+const logoutUser = async (rawRefreshToken) => {
+  if (!rawRefreshToken) return { message: "No token to clear" };
 
-  // Find user who has this refresh token
-  const user = await User.findOne({ refreshTokens: refreshToken });
-  if (user) {
-    // Remove the refresh token (logout for that device)
-    user.refreshTokens = user.refreshTokens.filter((t) => t !== refreshToken);
-    await user.save();
+  try {
+    const secret = process.env.JWT_REFRESH_SECRET;
+    const decoded = jwt.verify(rawRefreshToken, secret);
+
+    const user = await User.findById(decoded.id);
+    if (user) {
+      // 5. Hash it so we remove the correct one from the DB
+      user.refreshTokens = user.refreshTokens.filter(
+        (t) => t !== hashToken(rawRefreshToken),
+      );
+      await user.save();
+    }
+  } catch (error) {
+    console.error("Critical error during logout:", error);
   }
 
   return { message: "Logged out successfully" };
