@@ -1,7 +1,14 @@
 import { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import { X, Search, Menu, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  X,
+  Search,
+  Menu,
+  ArrowRight,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import BlogCard from "../components/BlogCard";
 import Loader from "../components/ui/Loader";
@@ -110,8 +117,11 @@ export default function Blogs() {
     "Photography",
     "Science",
   ];
-  const UNIQUE_CATEGORIES = useMemo(() => ["all", ...Array.from(new Set(RAW_CATEGORIES))], []);
-  
+  const UNIQUE_CATEGORIES = useMemo(
+    () => ["all", ...Array.from(new Set(RAW_CATEGORIES))],
+    [],
+  );
+
   const filteredCategories = useMemo(() => {
     return UNIQUE_CATEGORIES.filter((cat) =>
       cat.toLowerCase().includes(categorySearchTerm.toLowerCase()),
@@ -128,7 +138,10 @@ export default function Blogs() {
   };
 
   return (
-    <div id="blogs-page-layout" className="flex flex-col md:flex-row pb-24 pt-8 md:pt-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 md:gap-8 overflow-hidden">
+    <div
+      id="blogs-page-layout"
+      className="flex flex-col md:flex-row pb-24 pt-8 md:pt-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 md:gap-8 overflow-hidden"
+    >
       {/* L E F T   S I D E B A R */}
       <aside
         className={`fixed inset-y-0 left-0 z-40 w-72 bg-white/90 dark:bg-black/90 backdrop-blur-xl border-r border-border/50 transform transition-all duration-300 ease-in-out md:relative md:bg-transparent md:border-none md:flex md:flex-col ${isSidebarOpen ? "translate-x-0 md:w-64 md:opacity-100" : "-translate-x-full md:w-0 md:opacity-0 md:overflow-hidden"}`}
@@ -265,7 +278,10 @@ export default function Blogs() {
         {/* Content Section */}
         {loading ? (
           <div className="flex flex-col items-center justify-center py-32 space-y-4">
-            <Loader size="lg" className="text-primary drop-shadow-[0_0_15px_rgba(var(--primary),0.3)]" />
+            <Loader
+              size="lg"
+              className="text-primary drop-shadow-[0_0_15px_rgba(var(--primary),0.3)]"
+            />
             <p className="text-muted-foreground font-medium tracking-wide">
               Searching our archives...
             </p>

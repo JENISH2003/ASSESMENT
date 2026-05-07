@@ -61,7 +61,7 @@ export default function AboutUs() {
           <div className="w-full lg:w-1/2 relative">
             <div className="aspect-[4/3] rounded-3xl overflow-hidden glass p-2 shadow-2xl">
               <img
-                src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=1200"
+                src="/images/about-hero.jpg"
                 alt="Our collaborative Team"
                 className="w-full h-full object-cover rounded-2xl"
               />
@@ -194,19 +194,19 @@ export default function AboutUs() {
               {
                 name: "Alex Carter",
                 role: "Editor in Chief",
-                img: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=facearea&facepad=2&w=400&h=400&q=80",
+                img: "/images/team-1.jpg",
                 bio: "Former principal engineer turned technical author overseeing all editorial guidelines.",
               },
               {
                 name: "Sarah Jenkins",
                 role: "Design Lead",
-                img: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=facearea&facepad=2&w=400&h=400&q=80",
+                img: "/images/team-2.jpg",
                 bio: "Award-winning product designer creating fluid and highly accessible web experiences.",
               },
               {
                 name: "Michael Chen",
                 role: "Platform Architect",
-                img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=facearea&facepad=2&w=400&h=400&q=80",
+                img: "/images/team-3.jpg",
                 bio: "Distributed systems expert leading our core infrastructure initiatives.",
               },
             ].map((member, i) => (

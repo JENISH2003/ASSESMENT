@@ -174,7 +174,7 @@ export default function SuperAdminUsers() {
                         e.stopPropagation();
                         handleDeleteUser(u._id);
                       }}
-                      className="p-2 rounded-xl bg-destructive/10 text-destructive hover:bg-destructive text-destructive-foreground hover:shadow-lg transition-all"
+                      className="p-2 rounded-xl bg-red-50 text-red-700 hover:bg-red-800 hover:text-white hover:shadow-lg transition-all dark:bg-red-900/30 dark:text-red-500 dark:hover:bg-red-700"
                       title="Delete User"
                     >
                       <Trash2 className="w-5 h-5" />

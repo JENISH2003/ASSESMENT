@@ -41,6 +41,23 @@ export default function UserDetails() {
     fetchHistory();
   }, [id]);
 
+  const limit = 5;
+  const blogs = data?.blogs || [];
+
+  const filteredBlogs = useMemo(() => {
+    return blogs.filter((blog) =>
+      blog.title.toLowerCase().includes(searchTerm.toLowerCase()),
+    );
+  }, [blogs, searchTerm]);
+
+  const totalPages = useMemo(() => Math.ceil(filteredBlogs.length / limit) || 1, [filteredBlogs.length]);
+  const currentBlogs = useMemo(() => {
+    return filteredBlogs.slice(
+      (currentPage - 1) * limit,
+      currentPage * limit,
+    );
+  }, [filteredBlogs, currentPage]);
+
   if (loading)
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
@@ -60,22 +77,7 @@ export default function UserDetails() {
       </div>
     );
 
-  const { user, totalBlogs, totalDeletions, blogs } = data;
-
-  const filteredBlogs = useMemo(() => {
-    return blogs?.filter((blog) =>
-      blog.title.toLowerCase().includes(searchTerm.toLowerCase()),
-    ) || [];
-  }, [blogs, searchTerm]);
-
-  const limit = 5;
-  const totalPages = useMemo(() => Math.ceil(filteredBlogs.length / limit) || 1, [filteredBlogs.length]);
-  const currentBlogs = useMemo(() => {
-    return filteredBlogs.slice(
-      (currentPage - 1) * limit,
-      currentPage * limit,
-    );
-  }, [filteredBlogs, currentPage]);
+  const { user, totalBlogs, totalDeletions } = data;
 
   const handlePreviousPage = () => setCurrentPage((p) => Math.max(1, p - 1));
   const handleNextPage = () =>

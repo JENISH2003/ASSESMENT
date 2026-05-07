@@ -84,6 +84,15 @@ export default function Dashboard() {
     fileInputRef.current?.click();
   };
 
+  const totalViews = useMemo(() => {
+    return posts.reduce((sum, post) => sum + (post.views || 0), 0);
+  }, [posts]);
+
+  const stats = useMemo(() => [
+    { label: "Total Posts", value: posts.length.toString(), icon: LayoutIcon },
+    { label: "Total Views", value: totalViews.toString(), icon: User },
+  ], [posts.length, totalViews]);
+
   if (!user) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh]">
@@ -96,15 +105,6 @@ export default function Dashboard() {
       </div>
     );
   }
-
-  const totalViews = useMemo(() => {
-    return posts.reduce((sum, post) => sum + (post.views || 0), 0);
-  }, [posts]);
-
-  const stats = useMemo(() => [
-    { label: "Total Posts", value: posts.length.toString(), icon: LayoutIcon },
-    { label: "Total Views", value: totalViews.toString(), icon: User },
-  ], [posts.length, totalViews]);
 
   return (
     <div className="max-w-6xl mx-auto py-10 animate-fade-in">

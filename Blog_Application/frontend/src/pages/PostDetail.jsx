@@ -98,7 +98,7 @@ export default function PostDetail() {
 
   const imageUrl =
     post.imageUrl ||
-    "https://images.unsplash.com/photo-1499750310107-5fef28a66643?q=80&w=2670&auto=format&fit=crop";
+    "/images/post-default.jpg";
   const dateStr = new Date(post.createdAt || Date.now()).toLocaleDateString(
     "en-US",
     {
