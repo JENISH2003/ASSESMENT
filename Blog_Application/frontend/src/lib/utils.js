@@ -14,4 +14,4 @@ install this 2 with npm
 2) tailwind-merge
 → Fixes conflicting Tailwind classes
 
-*/ 
+*/

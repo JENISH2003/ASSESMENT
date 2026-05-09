@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import axios from "axios";
+import axiosInstance from "../services/axiosInstance";
 import { Link } from "react-router-dom";
 import {
   X,
@@ -38,13 +39,12 @@ export default function Blogs() {
       setError(null);
 
       try {
-        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
-        let endpoint = `/api/posts?page=${currentPage}&limit=18`;
+        let endpoint = `/posts?page=${currentPage}&limit=18`;
 
         if (searchTerm) endpoint += `&search=${searchTerm}`;
-        if (tagFilter && tagFilter !== "all") endpoint += `&tag=${tagFilter}`;
+        if (tagFilters.length > 0) endpoint += `&tag=${tagFilters.join(",")}`;
 
-        const res = await axios.get(`${apiUrl}${endpoint}`);
+        const res = await axiosInstance.get(endpoint);
 
         setPosts(res.data.data || []);
         if (res.data.meta) {

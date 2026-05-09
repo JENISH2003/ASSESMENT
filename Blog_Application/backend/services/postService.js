@@ -2,7 +2,13 @@ const Post = require("../models/Post");
 const AppError = require("../utils/AppError");
 
 // Create a new post
-const createPost = async ({ title, content, author, tags = [], imageUrl = "" }) => {
+const createPost = async ({
+  title,
+  content,
+  author,
+  tags = [],
+  imageUrl = "",
+}) => {
   const post = await Post.create({
     title,
     content,
@@ -16,7 +22,7 @@ const createPost = async ({ title, content, author, tags = [], imageUrl = "" }) 
     userId: author,
     blogId: post._id,
     blogTitle: post.title,
-    action: "Created"
+    action: "Created",
   });
 
   return post;
@@ -26,13 +32,13 @@ const createPost = async ({ title, content, author, tags = [], imageUrl = "" }) 
 const getAllPosts = async ({ authorId, page = 1, limit = 20, search, tag }) => {
   const skip = (page - 1) * limit;
   const query = { isDeleted: false };
-  
+
   if (authorId) query.author = authorId;
   if (tag && tag !== "all") query.tags = tag;
   if (search) {
     query.$or = [
       { title: { $regex: search, $options: "i" } },
-      { content: { $regex: search, $options: "i" } }
+      { content: { $regex: search, $options: "i" } },
     ];
   }
 
@@ -46,7 +52,7 @@ const getAllPosts = async ({ authorId, page = 1, limit = 20, search, tag }) => {
       .limit(limit)
       .populate("author", "name email avatarUrl avatarThumbUrl")
       .lean(),
-    Post.countDocuments(query)
+    Post.countDocuments(query),
   ]);
 
   return { posts, totalDocuments, page, limit };
@@ -55,9 +61,9 @@ const getAllPosts = async ({ authorId, page = 1, limit = 20, search, tag }) => {
 // Get post by ID
 const getPostById = async (postId) => {
   const post = await Post.findByIdAndUpdate(
-    postId, 
-    { $inc: { views: 1 } }, 
-    { new: true }
+    postId,
+    { $inc: { views: 1 } },
+    { new: true },
   ).populate("author", "name email avatarUrl avatarThumbUrl");
 
   if (!post || post.isDeleted) {
@@ -76,15 +82,24 @@ const updatePost = async (postId, updateData, user) => {
   }
 
   // Authorization check: User must be author OR admin OR superadmin
-  if (post.author.toString() !== user._id.toString() && user.role !== "admin" && user.role !== "superadmin") {
+  if (
+    post.author.toString() !== user._id.toString() &&
+    user.role !== "admin" &&
+    user.role !== "superadmin"
+  ) {
     throw new AppError("You do not have permission to edit this post", 403);
   }
 
   const allowedFields = ["title", "content", "tags", "isPublished", "imageUrl"];
   const updateKeys = Object.keys(updateData);
-  const invalidFields = updateKeys.filter((key) => !allowedFields.includes(key));
+  const invalidFields = updateKeys.filter(
+    (key) => !allowedFields.includes(key),
+  );
   if (invalidFields.length > 0) {
-    throw new AppError(`Invalid update fields: ${invalidFields.join(", ")}`, 400);
+    throw new AppError(
+      `Invalid update fields: ${invalidFields.join(", ")}`,
+      400,
+    );
   }
 
   if (updateKeys.length === 0) {
@@ -102,7 +117,7 @@ const updatePost = async (postId, updateData, user) => {
     userId: user._id,
     blogId: post._id,
     blogTitle: post.title,
-    action: "Updated"
+    action: "Updated",
   });
 
   return post;
@@ -117,7 +132,11 @@ const deletePost = async (postId, user) => {
   }
 
   // Authorization check: User must be  admin OR superadmin
-  if (post.author.toString() !== user._id.toString() && user.role !== "admin" && user.role !== "superadmin") {
+  if (
+    post.author.toString() !== user._id.toString() &&
+    user.role !== "admin" &&
+    user.role !== "superadmin"
+  ) {
     throw new AppError("You do not have permission to delete this post", 403);
   }
 
@@ -130,7 +149,7 @@ const deletePost = async (postId, user) => {
     userId: user._id,
     blogId: post._id,
     blogTitle: post.title,
-    action: "Deleted"
+    action: "Deleted",
   });
 
   return { message: "Post deleted successfully" };

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import axiosInstance from "../services/axiosInstance";
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
@@ -24,9 +25,8 @@ export default function Home() {
     const fetchPosts = async () => {
       setLoading(true);
       try {
-        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
         // Fetch front page posts - limit to 4
-        const res = await axios.get(`${apiUrl}/api/posts?page=1&limit=4`);
+        const res = await axiosInstance.get(`/posts?page=1&limit=4`);
         setPosts(res.data.data || []);
       } catch (err) {
         console.error("Error fetching posts:", err);

@@ -25,7 +25,11 @@ const validateRequest = (schema) => (req, res, next) => {
       return;
     }
 
-    if (rule.minLength && typeof value === "string" && value.trim().length < rule.minLength) {
+    if (
+      rule.minLength &&
+      typeof value === "string" &&
+      value.trim().length < rule.minLength
+    ) {
       errors.push(`${field} must be at least ${rule.minLength} characters`);
     }
 
