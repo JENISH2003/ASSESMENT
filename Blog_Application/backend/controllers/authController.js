@@ -51,7 +51,7 @@ const login = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: "Login successful",
-      token: result.token, // This is the Access Token
+      token: result.token,
       data: {
         _id: result._id,
         name: result.name,
