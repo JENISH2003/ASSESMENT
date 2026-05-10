@@ -74,9 +74,10 @@ axiosInstance.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         return axiosInstance(originalRequest);
         
-      } catch {
+      } catch (refreshError) {
         // If the refresh token is ALSO expired, the user must log in again.
         console.error("Refresh token expired. User must login again.");
+        return Promise.reject(refreshError);
       }
     }
     

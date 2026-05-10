@@ -24,7 +24,17 @@ const protect = async (req, res, next) => {
       throw new Error("Server misconfiguration: JWT access secret missing");
     }
 
-    const decoded = jwt.verify(token, jwtSecret);
+    let decoded;
+    try {
+      decoded = jwt.verify(token, jwtSecret);
+    } catch (error) {
+      res.status(401);
+      throw new Error(
+        error.name === "TokenExpiredError"
+          ? "Not authorized, token expired"
+          : "Not authorized, token failed"
+      );
+    }
 
     const user = await User.findById(decoded.id);
 
