@@ -42,7 +42,7 @@ export default function UserDetails() {
   }, [id]);
 
   const limit = 5;
-  const blogs = data?.blogs || [];
+  const blogs = useMemo(() => data?.blogs || [], [data?.blogs]);
 
   const filteredBlogs = useMemo(() => {
     return blogs.filter((blog) =>

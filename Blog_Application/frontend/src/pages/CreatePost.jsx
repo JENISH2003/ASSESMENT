@@ -99,7 +99,7 @@ export default function CreatePost() {
     setError("");
 
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
       const formData = new FormData();
       formData.append("title", title);
       formData.append("content", content);

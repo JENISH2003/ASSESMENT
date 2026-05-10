@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import axios from "axios";
+
 import axiosInstance from "../services/axiosInstance";
 import { Link } from "react-router-dom";
 import {
@@ -10,9 +10,31 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+// eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
 import BlogCard from "../components/BlogCard";
 import Loader from "../components/ui/Loader";
+
+const RAW_CATEGORIES = [
+  "Technology",
+  "Programming",
+  "Lifestyle",
+  "Health",
+  "Business",
+  "Travel",
+  "Food",
+  "Fashion",
+  "Fitness",
+  "Education",
+  "Finance",
+  "Entertainment",
+  "Sports",
+  "Music",
+  "Art",
+  "Photography",
+  "Science",
+];
+
 
 export default function Blogs() {
   const [posts, setPosts] = useState([]);
@@ -42,7 +64,7 @@ export default function Blogs() {
         let endpoint = `/posts?page=${currentPage}&limit=18`;
 
         if (searchTerm) endpoint += `&search=${searchTerm}`;
-        if (tagFilters.length > 0) endpoint += `&tag=${tagFilters.join(",")}`;
+        if (tagFilter && tagFilter !== "all") endpoint += `&tag=${tagFilter}`;
 
         const res = await axiosInstance.get(endpoint);
 
@@ -98,25 +120,7 @@ export default function Blogs() {
     }
   };
 
-  const RAW_CATEGORIES = [
-    "Technology",
-    "Programming",
-    "Lifestyle",
-    "Health",
-    "Business",
-    "Travel",
-    "Food",
-    "Fashion",
-    "Fitness",
-    "Education",
-    "Finance",
-    "Entertainment",
-    "Sports",
-    "Music",
-    "Art",
-    "Photography",
-    "Science",
-  ];
+
   const UNIQUE_CATEGORIES = useMemo(
     () => ["all", ...Array.from(new Set(RAW_CATEGORIES))],
     [],
