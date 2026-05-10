@@ -24,4 +24,7 @@ router.post("/refresh-token", authController.refreshToken);
 // Logout
 router.post("/logout", authController.logout);
 
+// Logout All Devices
+router.post("/logout-all", protect, authController.logoutAllDevices);
+
 module.exports = router;

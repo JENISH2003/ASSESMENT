@@ -137,4 +137,18 @@ const logoutUser = async (rawRefreshToken) => {
   return { message: "Logged out successfully" };
 };
 
-module.exports = { registerUser, loginUser, refreshAccessToken, logoutUser };
+// ================= LOGOUT ALL DEVICES =================
+const logoutAllDevices = async (userId) => {
+  try {
+    const user = await User.findById(userId);
+    if (user) {
+      user.refreshTokens = [];
+      await user.save();
+    }
+  } catch (error) {
+    console.error("Critical error during logout all:", error);
+  }
+  return { message: "Logged out from all devices successfully" };
+};
+
+module.exports = { registerUser, loginUser, refreshAccessToken, logoutUser, logoutAllDevices };

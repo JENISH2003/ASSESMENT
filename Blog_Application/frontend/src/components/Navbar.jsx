@@ -1,11 +1,11 @@
 import { useLocation, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { PenSquare, Shield, User as UserIcon, LogOut, LogIn, UserPlus, Menu, X } from "lucide-react";
+import { PenSquare, Shield, User as UserIcon, LogOut, LogIn, UserPlus, Menu, X, PowerOff } from "lucide-react";
 import { cn } from "../lib/utils";
 import { useState, useEffect } from "react";
 
 export default function Navbar() {
-  const { user, logout } = useAuth() || { user: null, logout: () => {} };
+  const { user, logout, logoutAllDevices } = useAuth() || { user: null, logout: () => {}, logoutAllDevices: () => {} };
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -88,13 +88,32 @@ export default function Navbar() {
                   >
                     <UserIcon className="w-4 h-4" />
                   </Link>
-                  <button
-                    onClick={logout}
-                    className="text-muted-foreground hover:text-destructive transition-colors cursor-pointer p-2"
-                    title="Logout"
-                  >
-                    <LogOut className="w-5 h-5" />
-                  </button>
+                  <div className="relative group">
+                    <button
+                      className="text-muted-foreground hover:text-destructive transition-colors cursor-pointer p-2 flex items-center gap-1"
+                      title="Logout Options"
+                    >
+                      <LogOut className="w-5 h-5" />
+                    </button>
+                    
+                    {/* Dropdown Menu */}
+                    <div className="absolute right-0 mt-2 w-56 bg-background/95 backdrop-blur-md border border-border/50 rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 overflow-hidden transform origin-top-right scale-95 group-hover:scale-100">
+                      <div className="py-1.5 flex flex-col">
+                        <button
+                          onClick={logout}
+                          className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-foreground hover:bg-secondary transition-colors text-left w-full"
+                        >
+                          <LogOut className="w-4 h-4 text-muted-foreground" /> Logout 
+                        </button>
+                        <button
+                          onClick={logoutAllDevices}
+                          className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors text-left w-full"
+                        >
+                          <PowerOff className="w-4 h-4" /> Logout from all devices
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </>
             ) : (
@@ -185,6 +204,15 @@ export default function Navbar() {
                     className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium text-destructive hover:bg-destructive/10 transition-all text-left"
                   >
                     <LogOut className="w-5 h-5" /> Logout
+                  </button>
+                  <button
+                    onClick={() => {
+                      logoutAllDevices();
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium text-destructive hover:bg-destructive/10 transition-all text-left"
+                  >
+                    <PowerOff className="w-5 h-5" /> Logout All Devices
                   </button>
                 </>
               ) : (

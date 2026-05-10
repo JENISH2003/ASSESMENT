@@ -73,6 +73,18 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
+  // LOGOUT ALL DEVICES
+  const logoutAllDevices = useCallback(async () => {
+    try {
+      await axiosInstance.post("/auth/logout-all");
+    } catch {
+      console.error("Logout all error");
+    } finally {
+      setUser(null);
+      setAccessToken(null);
+    }
+  }, []);
+
   const contextValue = useMemo(
     () => ({
       user,
@@ -80,9 +92,10 @@ export const AuthProvider = ({ children }) => {
       login,
       register,
       logout,
+      logoutAllDevices,
       setUser,
     }),
-    [user, loading, login, register, logout],
+    [user, loading, login, register, logout, logoutAllDevices],
   );
 
   return (

@@ -136,10 +136,28 @@ const getMe = async (req, res, next) => {
   }
 };
 
+// ================= LOGOUT ALL DEVICES =================
+const logoutAllDevices = async (req, res, next) => {
+  try {
+    await authService.logoutAllDevices(req.user._id);
+
+    // Clear the Refresh Token Cookie
+    res.cookie("refreshToken", "", { ...cookieOptions, maxAge: 0 });
+
+    res.status(200).json({
+      success: true,
+      message: "Logged out from all devices successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   register,
   login,
   refreshToken,
   logout,
+  logoutAllDevices,
   getMe,
 };
