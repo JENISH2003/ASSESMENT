@@ -17,6 +17,7 @@ export default function PostDetail() {
   const [newComment, setNewComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [commentError, setCommentError] = useState("");
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   const currentPostId = useRef(null);
 
@@ -146,15 +147,24 @@ export default function PostDetail() {
         )}
       </header>
 
-      <div className="relative aspect-[21/9] w-full mb-12 rounded-3xl overflow-hidden shadow-2xl">
+      <div className="relative aspect-video w-full mb-12 rounded-3xl overflow-hidden shadow-2xl bg-secondary/20 border border-border/30">
+        {!imageLoaded && (
+          <div className="absolute inset-0 flex items-center justify-center animate-pulse">
+            <Loader className="text-primary/50" size="lg" />
+          </div>
+        )}
         <img
           src={imageUrl}
           alt={post.title}
-          className="object-cover w-full h-full hover:scale-105 transition-transform duration-700"
+          onLoad={() => setImageLoaded(true)}
+          className={`absolute inset-0 object-cover w-full h-full hover:scale-105 transition-all duration-700 ${
+            imageLoaded ? "opacity-100" : "opacity-0 scale-105"
+          }`}
         />
       </div>
 
-      <div className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-heading prose-a:text-primary whitespace-pre-wrap">
+      <div className="prose prose-lg md:prose-xl dark:prose-invert max-w-none whitespace-pre-wrap leading-relaxed tracking-wide text-foreground/90 bg-secondary/5 p-6 md:p-12 rounded-[2rem] border border-border/50 shadow-sm relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 blur-[80px] rounded-full pointer-events-none"></div>
         {post.content}
       </div>
 
