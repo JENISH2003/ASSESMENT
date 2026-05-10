@@ -10,7 +10,6 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-// eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
 import BlogCard from "../components/BlogCard";
 import Loader from "../components/ui/Loader";

@@ -5,7 +5,15 @@ import { motion } from "framer-motion";
 import { Input } from "../components/ui/Input";
 import { Button } from "../components/ui/Button";
 import Loader from "../components/ui/Loader";
-import { Mail, CheckCircle2, AlertCircle, User, MessageSquare, Send } from "lucide-react";export default function Contact() {
+import {
+  Mail,
+  CheckCircle2,
+  AlertCircle,
+  User,
+  MessageSquare,
+  Send,
+} from "lucide-react";
+export default function Contact() {
   const { user } = useAuth() || { user: null };
   const [formData, setFormData] = useState({
     name: user?.name || user?.username || "",
