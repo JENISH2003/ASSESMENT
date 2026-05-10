@@ -16,15 +16,21 @@ export default function Dashboard() {
   const [isDeleting, setIsDeleting] = useState(null);
   const fileInputRef = useRef(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [meta, setMeta] = useState(null);
 
   useEffect(() => {
     if (user) {
       const fetchPosts = async () => {
+        setLoading(true);
         try {
           const apiEndpoint =
-            user.role === "admin" ? "/posts" : `/posts?author=${user._id}`;
+            user.role === "admin" 
+              ? `/posts?page=${currentPage}&limit=5` 
+              : `/posts?author=${user._id}&page=${currentPage}&limit=5`;
           const res = await axiosInstance.get(apiEndpoint);
           setPosts(res.data.data);
+          setMeta(res.data.meta);
         } catch (error) {
           console.error("Failed to fetch posts", error);
         } finally {
@@ -33,7 +39,7 @@ export default function Dashboard() {
       };
       fetchPosts();
     }
-  }, [user]);
+  }, [user, currentPage]);
 
   const handleDelete = async (postId) => {
     if (
@@ -89,9 +95,9 @@ export default function Dashboard() {
   }, [posts]);
 
   const stats = useMemo(() => [
-    { label: "Total Posts", value: posts.length.toString(), icon: LayoutIcon },
-    { label: "Total Views", value: totalViews.toString(), icon: User },
-  ], [posts.length, totalViews]);
+    { label: "Total Posts", value: (meta?.totalDocuments || 0).toString(), icon: LayoutIcon },
+    { label: "Page Views", value: totalViews.toString(), icon: User },
+  ], [meta?.totalDocuments, totalViews]);
 
   if (!user) {
     return (
@@ -206,30 +212,37 @@ export default function Dashboard() {
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                 </div>
               ) : posts.length > 0 ? (
-                posts.map((post) => (
+                posts.map((post, index) => {
+                  const postNumber = (currentPage - 1) * 5 + index + 1;
+                  return (
                   <div
                     key={post._id}
                     className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-secondary/20 rounded-xl border border-border/50 hover:border-primary/30 transition-colors"
                   >
-                    <div className="mb-4 sm:mb-0 pr-4">
-                      <h4 className="font-semibold text-foreground truncate max-w-md text-lg">
-                        {post.title}
-                      </h4>
-                      <div className="flex flex-wrap items-center gap-3 mt-2">
-                        <span className="flex items-center text-xs text-muted-foreground bg-secondary/60 px-2.5 py-1 rounded-md">
-                          <Calendar className="w-3 h-3 mr-1.5" />
-                          {new Date(post.createdAt).toLocaleString("en-US", {
-                            year: "numeric",
-                            month: "short",
-                            day: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </span>
-                        <span className="flex items-center text-xs font-medium text-primary bg-primary/10 px-2.5 py-1 rounded-md">
-                          <Eye className="w-3 h-3 mr-1.5" />
-                          {post.views || 0} Views
-                        </span>
+                    <div className="mb-4 sm:mb-0 pr-4 flex items-start gap-3">
+                      <div className="text-lg font-heading font-bold text-muted-foreground/40 mt-0.5 shrink-0 w-6 text-right">
+                        {postNumber}.
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-foreground truncate max-w-md text-lg">
+                          {post.title}
+                        </h4>
+                        <div className="flex flex-wrap items-center gap-3 mt-2">
+                          <span className="flex items-center text-xs text-muted-foreground bg-secondary/60 px-2.5 py-1 rounded-md">
+                            <Calendar className="w-3 h-3 mr-1.5" />
+                            {new Date(post.createdAt).toLocaleString("en-US", {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </span>
+                          <span className="flex items-center text-xs font-medium text-primary bg-primary/10 px-2.5 py-1 rounded-md">
+                            <Eye className="w-3 h-3 mr-1.5" />
+                            {post.views || 0} Views
+                          </span>
+                        </div>
                       </div>
                     </div>
                     <div className="flex gap-2 shrink-0 items-center justify-end w-full sm:w-auto mt-4 sm:mt-0">
@@ -262,7 +275,8 @@ export default function Dashboard() {
                       </Link>
                     </div>
                   </div>
-                ))
+                  );
+                })
               ) : (
                 <div className="flex flex-col items-center justify-center py-12 text-center border-2 border-dashed border-border/60 rounded-2xl bg-secondary/20">
                   <PenTool className="w-12 h-12 text-muted-foreground mb-4" />
@@ -281,6 +295,29 @@ export default function Dashboard() {
                       Create First Post <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
                   </Link>
+                </div>
+              )}
+
+              {/* Pagination Controls */}
+              {meta && meta.totalPages > 1 && (
+                <div className="flex items-center justify-between mt-6 pt-4 border-t border-border/50">
+                  <Button
+                    variant="outline"
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                    disabled={!meta.hasPrevPage}
+                  >
+                    Previous
+                  </Button>
+                  <span className="text-sm font-medium text-muted-foreground">
+                    Page {meta.currentPage} of {meta.totalPages}
+                  </span>
+                  <Button
+                    variant="outline"
+                    onClick={() => setCurrentPage((p) => Math.min(meta.totalPages, p + 1))}
+                    disabled={!meta.hasNextPage}
+                  >
+                    Next
+                  </Button>
                 </div>
               )}
             </div>

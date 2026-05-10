@@ -11,7 +11,6 @@ const storage = new CloudinaryStorage({
   },
 });
 
-// Configure multer with strict limits (e.g., 5MB for blog images)
 const postUpload = multer({
   storage,
   limits: { fileSize: 5 * 1024 * 1024 },

@@ -74,6 +74,50 @@ export default function Home() {
           </div>
         </section>
 
+        {/* About platform CTA Section (Always visible) */}
+        <section className="mb-20 mt-8 animate-fade-in">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+            <div className="relative aspect-square sm:aspect-video lg:aspect-[4/3] rounded-[2.5rem] overflow-hidden shadow-2xl border border-border/50 group">
+              <div className="absolute inset-0 bg-primary/20 mix-blend-overlay z-10 group-hover:bg-transparent transition-colors duration-700 pointer-events-none" />
+              <img
+                src="/images/home-hero.jpg"
+                alt="Creative team collaborating"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent z-10 pointer-events-none" />
+            </div>
+
+            <div className="flex flex-col justify-center space-y-6 lg:pl-4">
+              <div className="inline-flex items-center space-x-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-bold w-max shadow-sm">
+                <Sparkles className="w-4 h-4" />
+                <span>Discover Our Story</span>
+              </div>
+
+              <h2 className="text-4xl lg:text-5xl font-heading font-extrabold tracking-tight text-foreground leading-[1.15]">
+                Where great minds{" "}
+                <span className="text-gradient">come to write.</span>
+              </h2>
+
+              <p className="text-xl text-muted-foreground leading-relaxed">
+                We believe that every person has a story worth telling. Our
+                platform provides a beautifully crafted, distraction-free
+                environment designed to help you share your knowledge,
+                connect with readers, and grow a dedicated audience.
+              </p>
+
+              <div className="pt-4">
+                <Link
+                  to="/about"
+                  className="inline-flex items-center justify-center px-8 py-4 text-base font-bold text-primary-foreground bg-primary rounded-2xl hover:bg-primary/90 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-primary/20"
+                >
+                  Read full story
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {loading ? (
           <div className="flex justify-center py-20">
             <Loader size="md" className="text-muted-foreground" />
@@ -87,51 +131,7 @@ export default function Home() {
             No stories published yet. Be the first to start writing!
           </div>
         ) : (
-          <div className="space-y-16 animate-fade-in mx-auto w-full min-h-[calc(100vh-80px)] flex flex-col justify-center py-10">
-            {/* About platform CTA Section */}
-            <section className="mb-20 mt-8">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-                <div className="relative aspect-square sm:aspect-video lg:aspect-[4/3] rounded-[2.5rem] overflow-hidden shadow-2xl border border-border/50 group">
-                  <div className="absolute inset-0 bg-primary/20 mix-blend-overlay z-10 group-hover:bg-transparent transition-colors duration-700 pointer-events-none" />
-                  <img
-                    src="/images/home-hero.jpg"
-                    alt="Creative team collaborating"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent z-10 pointer-events-none" />
-                </div>
-
-                <div className="flex flex-col justify-center space-y-6 lg:pl-4">
-                  <div className="inline-flex items-center space-x-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-bold w-max shadow-sm">
-                    <Sparkles className="w-4 h-4" />
-                    <span>Discover Our Story</span>
-                  </div>
-
-                  <h2 className="text-4xl lg:text-5xl font-heading font-extrabold tracking-tight text-foreground leading-[1.15]">
-                    Where great minds{" "}
-                    <span className="text-gradient">come to write.</span>
-                  </h2>
-
-                  <p className="text-xl text-muted-foreground leading-relaxed">
-                    We believe that every person has a story worth telling. Our
-                    platform provides a beautifully crafted, distraction-free
-                    environment designed to help you share your knowledge,
-                    connect with readers, and grow a dedicated audience.
-                  </p>
-
-                  <div className="pt-4">
-                    <Link
-                      to="/about"
-                      className="inline-flex items-center justify-center px-8 py-4 text-base font-bold text-primary-foreground bg-primary rounded-2xl hover:bg-primary/90 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-primary/20"
-                    >
-                      Read full story
-                      <ArrowRight className="w-5 h-5 ml-2" />
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </section>
-
+          <div className="space-y-16 animate-fade-in mx-auto w-full flex flex-col justify-center pb-10">
             {/* Recent Posts Grid */}
             {latestPosts.length > 0 && (
               <section className="border-t border-border/50 pt-16">
